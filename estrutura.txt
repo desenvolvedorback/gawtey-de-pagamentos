@@ -1,0 +1,52 @@
+payment-gateway/
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── services/
+│   │   │   └── payment_service.py
+│   │   ├── kms_wrapper.py
+│   │   ├── controllers/
+│   │   │   ├── payment_controller.py
+│   │   │   └── admin_controller.py
+│   │   ├── repositories/
+│   │   │   └── transaction_repo.py
+│   │   ├── schemas/
+│   │   │   └── payment_schemas.py
+│   │   └── utils/
+│   │       ├── qr_generator.py
+│   │       ├── link_generator.py
+│   │       └── email_service.py
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+├── fraud-service/
+│   └── src/
+│       └── main/
+│           ├── java/com/example/fraudservice/
+│           │   ├── FraudServiceApplication.java
+│           │   ├── controllers/FraudController.java
+│           │   └── services/FraudService.java
+│           └── resources/application.yml
+│
+├── frontend/
+│   ├── checkout.html
+│   ├── admin.html
+│   └── static/js/
+│       └── encrypt.js
+│
+├── migrations/
+│   └── env.py
+│   └── versions/
+│       └── 0001_initial.py
+│
+├── scripts/
+│   └── seed.sql
+│
+├── tests/
+│   ├── test_payment.py
+│   └── test_integration.py
+│
+├── docker-compose.yml
+├── README.md
+└── PRIVACY_POLICY.md

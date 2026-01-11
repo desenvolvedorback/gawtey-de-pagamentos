@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Painel Admin</title>
+<link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+<h1>Painel Administrativo</h1>
+<div id="config">
+  <p>Commission: <input id="commission" type="number"></p>
+  <p>Fixed Fee: <input id="fixed_fee" type="number"></p>
+  <p>Transaction Limit: <input id="limit" type="number"></p>
+  <button id="saveBtn">Salvar</button>
+</div>
+<script>
+async function loadConfig() {
+    const res = await fetch('/api/admin/config');
+    const data = await res.json();
+    document.getElementById('commission').value = data.commission_pct;
+    document.getElementById('fixed_fee').value = data.fixed_fee;
+    document.getElementById('limit').value = data.transaction_limit;
+}
+loadConfig();
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+    const payload = {
+        commission_pct: parseFloat(document.getElementById('commission').value),
+        fixed_fee: parseFloat(document.getElementById('fixed_fee').value),
+        transaction_limit: parseFloat(document.getElementById('limit').value)
+    };
+    const res = await fetch('/api/admin/update', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+    });
+    alert("Configuração atualizada!");
+});
+</script>
+</body>
+</html>

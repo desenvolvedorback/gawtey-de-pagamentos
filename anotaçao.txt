@@ -1,0 +1,81 @@
+Backend API: http://localhost:8000
+
+Flower (Celery monitor): http://localhost:5555
+
+Fraud service: http://localhost:8080
+
+Checkout (static served): http://localhost:8000/checkout.html (mounted from ./frontend)
+
+Rodar migrações (dentro do container backend):
+
+docker exec -it payment-gateway_backend_1 bash
+alembic upgrade head
+psql $DATABASE_URL -f /app/scripts/seed.sql
+
+Variáveis de ambiente importantes
+
+KMS_KEY - chave para Fernet (sandbox). Em produção use AWS KMS/GCP/Azure.
+
+DATABASE_URL - URL PostgreSQL.
+
+CELERY_BROKER - URL do Redis.
+
+JWT_SECRET - secret para JWT (adicionar nos envs).
+
+Testes
+
+Executar testes unitários dentro do container backend:
+
+docker exec -it payment-gateway_backend_1 bash
+pytest tests/
+
+
+O teste de integração dispara 1000 requests sequenciais/concorrentes para criar pagamentos em sandbox.
+
+Como substituir mocks por adquirentes reais
+
+Localize app/services/payment_service.py
+
+Substitua a parte que chama KMSWrapper e TransactionRepo por adaptador para adquirente (Stripe, Adyen, Cielo, etc.)
+
+Implemente acquirer_adapter.py com interfaces authorize, capture, refund.
+
+Segurança / Hardening (resumo)
+
+TLS 1.3 (terminação em proxy reverso em produção — Nginx/ALB/Cloud Load Balancer)
+
+Cookies: Secure, HttpOnly, SameSite=Strict
+
+CSP headers, HSTS (Strict-Transport-Security)
+
+Rate limiting (Nginx ou FastAPI middleware)
+
+WAF + IP allowlist/denylist
+
+KMS / HSM para chaves em produção
+
+Faça pentest e auditoria PCI antes de operar com cartões.
+
+Limitações e passos obrigatórios antes de produção
+
+Migrar tokenização para HSM/KMS real.
+
+Contratar adquirente e adaptar integrador.
+
+Certificação PCI-DSS completa.
+
+Política de privacidade e compliance revisadas por advogado.
+
+PenTest e auditoria de segurança.
+
+Observações finais e próximos passos recomendados
+
+Chaves & KMS: substitua o KMSWrapper local (Fernet) por integração com AWS KMS / GCP KMS / Azure Key Vault antes de qualquer dado real. Eu já deixei a abstração pronta para isso (backend/app/kms_wrapper.py).
+
+HSM: Ao usar cartões reais, HSM obrigatório para armazenamento de chaves de produção — peça ao seu provedor cloud ou fornecedor de HSM.
+
+PCI-DSS: contrate auditoria especializada e siga as exigências SAQ-A (se usar tokenização offload) ou SAQ-D (se processar localmente).
+
+Logs imutáveis: em produção, use serviços de append-only ledger (ex.: AWS QLDB, blockchain-permissioned ledger ou WORM storage).
+
+Testes de carga: para produzir testes reais, use locust/k6 com scripts de cenário.

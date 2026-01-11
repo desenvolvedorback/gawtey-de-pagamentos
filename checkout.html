@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Checkout Gateway</title>
+<link rel="stylesheet" href="static/styles.css">
+<script src="static/js/encrypt.js"></script>
+</head>
+<body>
+<h1>Pagamento</h1>
+<form id="checkoutForm">
+  <input type="text" name="name" placeholder="Nome no cartão" required>
+  <input type="text" name="card_number" placeholder="Número do cartão" required>
+  <input type="text" name="expiry" placeholder="MM/YY" required>
+  <input type="text" name="cvv" placeholder="CVV" required>
+  <input type="number" name="amount" placeholder="Valor" required>
+  <button type="submit">Pagar</button>
+</form>
+<script>
+document.getElementById('checkoutForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form = e.target;
+    const cardData = {
+        number: form.card_number.value,
+        expiry: form.expiry.value,
+        cvv: form.cvv.value,
+        name: form.name.value
+    };
+    const encrypted = await encryptCardData(cardData); // função do encrypt.js
+    const payload = {
+        method: 'card',
+        amount: parseFloat(form.amount.value),
+        card_data: encrypted
+    };
+    const res = await fetch('/api/payments/create', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    alert("Pagamento criado! Link: "+data.payment_link);
+});
+</script>
+</body>
+</html>
